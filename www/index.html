@@ -29,6 +29,7 @@
                 <th>Name</th>
                 <th>CPU %</th>
                 <th>Memory %</th>
+                <th>Max CPU Load Average %</th>
                 <th>Nodes</th>
             </tr>
         </thead>
@@ -37,6 +38,7 @@
               <td data-bind='text: name'></td>
               <td data-bind='text: cpu'></td>
               <td data-bind='text: memoryLoad'></td>
+              <td data-bind='text: cpuMaxLoad'></td>
               <td>
                 <div data-bind='foreach: nodes'>
                   <div class="foo" data-bind="style: {backgroundColor: color}"></div>

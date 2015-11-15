@@ -22,6 +22,7 @@ var StatusModel = function(clients) {
             {
                 koObj.cpu(person.cpu);
                 koObj.memoryLoad(person.memoryLoad);
+                koObj.cpuMaxLoad(person.cpuMaxLoad);
                 koObj.nodes([]);
                 for( var j = 0; j < person.nodes.length ; j++ )
                 {
@@ -44,6 +45,7 @@ var ClientModel = function(client)
     var self = this;
     self.cpu = ko.observable(client.cpu);
     self.memoryLoad = ko.observable(client.memoryLoad);
+    self.cpuMaxLoad = ko.observable(client.cpuMaxLoad);
     self.name = ko.observable(client.name);
     self.nodes = ko.observableArray([]);
 
@@ -63,7 +65,7 @@ var NodeModel = function(node) {
 var viewModel = new StatusModel(
 [
     { 
-        name: "Fake Client", cpu: "39.95", memoryLoad: "40",
+        name: "Fake Client", cpu: "39.95", memoryLoad: "40", cpuMaxLoad: "90",
         nodes: 
         [
             {color:"#00ff00"},
@@ -72,7 +74,7 @@ var viewModel = new StatusModel(
         ]
     },
     { 
-        name: "Your Computer", cpu: "0.00", memoryLoad: "0",
+        name: "Your Computer", cpu: "0.00", memoryLoad: "0", cpuMaxLoad: "0",
         nodes: 
         [
             {color:"#ab3fdd"},
@@ -98,6 +100,7 @@ $(document).ready( function()
             name:client.name, 
             cpu:client.cpu, 
             memoryLoad: client.memoryLoad,
+            cpuMaxLoad: client.cpuMaxLoad,
             nodes:client.nodes 
         });
     });

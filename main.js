@@ -2,7 +2,43 @@ var sio = require('socket.io')
   , http = require('http')
   , request = require('request')
   , os = require('os')
+  , nodemailer = require('nodemailer')
+  , secret = require('../../secret/secret.json')
   ;
+
+
+var transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  secureConnection: false,
+  port: 587,
+  domains: ["gmail.com", "googlemail.com"],
+  auth: {
+      user: 'pdeng@ncsu.edu',
+      pass: secret.pass
+  }
+});
+
+
+function send_mail(subjectText, detailsText){
+
+	var mailOptions =
+	{
+	  from: 'Pei Deng <pdeng@ncsu.edu>',
+	  to: 'Pei Deng <pdeng@ncsu.edu>',
+	  bcc: '',
+	  subject: 'SYSTEM ALERT: '+subjectText,
+	  text: detailsText 
+	};
+
+
+	transporter.sendMail(mailOptions, function(error, info){
+  	  if(error){
+    	console.log(error);
+  	  }else{
+    	console.log('Message sent: ' + info.response);
+  	  }
+    });
+}
 
 var app = http.createServer(function (req, res) {
       res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -10,6 +46,23 @@ var app = http.createServer(function (req, res) {
       res.end();
     })
   , io = sio.listen(app);
+
+
+
+function loadAvgPercent()
+{
+	var loadAvgArray = os.loadavg()
+
+	var percentLoadAvgArray = [0,0,0]
+
+	var numOfLogicalCpus = os.cpus().length
+
+	percentLoadAvgArray[0] = loadAvgArray[0]/numOfLogicalCpus 
+	percentLoadAvgArray[1] = loadAvgArray[1]/numOfLogicalCpus 
+	percentLoadAvgArray[2] = loadAvgArray[2]/numOfLogicalCpus 
+
+	return percentLoadAvgArray;
+}
 
 function memoryLoad()
 {
@@ -131,15 +184,68 @@ var nodeServers = [];
 ///////////////
 //// Broadcast heartbeat over websockets
 //////////////
+
+
+var isMailSent = false
+
+getMaxFromArray = function( array ){
+    return Math.max.apply( Math, array );
+};
+
 setInterval( function () 
 {
 
 	console.log("INSIDE INTERVAL")
+	var cpuAverageVal = cpuAverage()
+	var memoryLoadVal = memoryLoad()
+	var percentLoadAvgArray = loadAvgPercent()
+	var maxLoadAvg = getMaxFromArray(percentLoadAvgArray)*100
+
+
+
 	io.sockets.emit('heartbeat', 
 	{ 
-        name: "Your Computer", cpu: cpuAverage(), memoryLoad: memoryLoad(),
+        name: "Your Computer", cpu: cpuAverageVal, memoryLoad: memoryLoadVal, cpuMaxLoad: maxLoadAvg,
         nodes: calcuateColor()
    });
+
+	console.log("==========================")
+	console.log("cpuAverageVal:"+cpuAverageVal)
+	console.log("memoryLoadVal:"+memoryLoadVal)
+	console.log("maxLoadAvg:"+maxLoadAvg)
+	console.log("==========================")
+
+
+	if ( cpuAverageVal > 25){
+
+		var subjectText = "CPU Threshold Breached. Please check the running processes."
+		var detailsText = "\n================================\n ***ALERT SUMMARY**\n================================\n CPU USAGE: "
+		detailsText =  detailsText + cpuAverageVal +"\n MEMORY USAGE: "+ memoryLoadVal + "\n MAX LOAD AVG: "
+		detailsText =  detailsText + maxLoadAvg + "\n================================\n ***NOTE :Will stop monitoring now.\n Fix the problem and restart the monitoring program***\n================================\n"
+		// console.log(detailsText)
+
+		if(isMailSent === false ){
+			send_mail(subjectText, detailsText)
+			isMailSent = true
+		}
+
+		
+		
+	}
+	
+	if ( memoryLoadVal === 100 ){
+		var subjectText = "MEMORY Threshold Breached. Please check the running processes."
+
+		var detailsText = "\n================================\n ***ALERT SUMMARY**\n================================\n CPU USAGE: "
+		detailsText =  detailsText + cpuAverageVal +"\n MEMORY USAGE: "+ memoryLoadVal + "\n MAX LOAD AVG: "
+		detailsText =  detailsText + maxLoadAvg + "\n================================\n ***NOTE :Will stop monitoring now.\n Fix the problem and restart the monitoring program***\n================================\n"
+		
+		if(isMailSent === false ){
+			send_mail(subjectText, detailsText)
+			isMailSent = true
+		}
+
+	}
 
 }, 2000);
 

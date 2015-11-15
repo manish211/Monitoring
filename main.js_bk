@@ -6,7 +6,6 @@ var sio = require('socket.io')
 
 var app = http.createServer(function (req, res) {
       res.writeHead(200, { 'Content-Type': 'text/html' });
-      // res.write("HELLO")
       res.end();
     })
   , io = sio.listen(app);
@@ -20,7 +19,6 @@ function memoryLoad()
 	var percent_mem_used = (os_mem_used*100)/os_total_mem
 	console.log("os_mem_used=", os_mem_used)
 	console.log("percent_mem_used=", percent_mem_used)
-	// return 100;
 	return percent_mem_used;
 	// return 0;
 }
@@ -62,24 +60,20 @@ function cpuAverage()
 	//Calculate the difference in idle and total time between the measures
 	var idleDifference = endMeasure.idle - startMeasure.idle;
 	var totalDifference = endMeasure.total - startMeasure.total;
-
-	var usage = totalDifference - idleDifference
-	var usagePercentage = (usage*100)/totalDifference
  
 	//Calculate the average percentage CPU usage
-	return usagePercentage;
+	return 0;
 }
 
 function measureLatenancy(server)
 {
-	var start = Date.now()
 	var options = 
 	{
 		url: 'http://localhost' + ":" + server.address().port,
 	};
 	request(options, function (error, res, body) 
 	{
-		server.latency = Date.now() - start ;  // From professor
+		server.latency = undefined;
 	});
 
 	return server.latency;
@@ -133,8 +127,6 @@ var nodeServers = [];
 //////////////
 setInterval( function () 
 {
-
-	console.log("INSIDE INTERVAL")
 	io.sockets.emit('heartbeat', 
 	{ 
         name: "Your Computer", cpu: cpuAverage(), memoryLoad: memoryLoad(),
@@ -175,7 +167,7 @@ function createServer(port, fn)
       res.writeHead(200, { 'Content-Type': 'text/html' });
 
       fn();
-      // res.write("hello")
+      res.write("hello")
 
       res.end();
    }).listen(port);

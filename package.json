@@ -1,15 +1,32 @@
 {
-  "name": "monkey",
+  "name": "Monitor",
   "version": "0.0.1",
-  "description": "",
+  "description": "The goal of this workshop is to establish some basic principles related to establishing a monitoring infrastructure.  Based on this we can begin exploring some simple resilience testing.",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "ManishSingh",
   "license": "ISC",
   "devDependencies": {
     "request": "^2.55.0",
     "socket.io": "^1.3.5"
-  }
+  },
+  "dependencies": {
+    "request": "^2.65.0",
+    "nodemailer": "^1.10.0",
+    "socket.io": "^1.3.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manish211/Monitoring.git"
+  },
+  "keywords": [
+    "devops",
+    "monitor"
+  ],
+  "bugs": {
+    "url": "https://github.com/manish211/Monitoring/issues"
+  },
+  "homepage": "https://github.com/manish211/Monitoring"
 }
